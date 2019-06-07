@@ -27,12 +27,12 @@ var crawl = (url)=>{
         driver.quit();
     });
 }
-var crawlWeb=async (pageLoad)=>{
-    const result = await Promise.all(pageLoad.map(uri => crawlPage(uri)))
+var crawlWeb= (pageLoad)=>{
+    _.each(pageLoad,uri => crawlPage(uri));
 }
 const getNewsElements= ($) => {
     let newsEles = [];
-    $('.vip0').each((_, ele) => {
+    _.each($('.vip0'),ele => {
         newsEles.push($(ele));
     });
     return newsEles;
@@ -57,7 +57,7 @@ const extractProductInfo = ($) => {
     };
 };
 
-const saveText2File = (filepath, text) => {
+const saveText2File = async (filepath, text) => {
     fs.writeFile(filepath, text, 'utf8', function (err) {
         if (err) {
             return console.log(err);
@@ -74,4 +74,5 @@ for(var i = 2;i<=10;i++){
 
 //crawlWeb(pageLoad)
 crawl(url);
+
 
