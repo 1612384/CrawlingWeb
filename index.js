@@ -1,78 +1,40 @@
 const _ = require('lodash')
+const saveText2File = require('./saveFile');
+var driver = require('./buildDriver');
 
-const {Builder, until} = require('selenium-webdriver');
+let uri = "https://batdongsan.com.vn/";
 
-const fs = require('fs');
-let driver = new Builder()
-    .forBrowser('firefox')
-    .usingServer(process.env.SELENIUM_REMOTE_URL || 'http://localhost:4444/wd/hub')
-    .build();
-
-let url = "https://batdongsan.com.vn/nha-dat-ban";
-
-
-
-
-
-var crawl = (url)=>{
-    console.log(url)
-    driver.get(url)
+var crawlHomePage = (uri)=>{
+    console.log(uri)
+    driver.get(uri)
         .then(() => driver.getPageSource())
         .then((source) => {
             const $ = require('cheerio').load(source);
-            let news = getNewsElements($).map(ele => extractProductInfo(ele));
-            saveText2File(`./result/new_${Date.now()}.json`, JSON.stringify(news));
+            let uri  = getURLElenments($).map(ele=>extractLink(ele))
+            saveText2File(`./result/new_${Date.now()}.json`, JSON.stringify(uri));
+            crawlPage(uri[0]);
             })
         .then(() => {
         driver.quit();
     });
 }
-var crawlWeb= (pageLoad)=>{
-    _.each(pageLoad,uri => crawlPage(uri));
-}
-const getNewsElements= ($) => {
-    let newsEles = [];
-    _.each($('.vip0'),ele => {
-        newsEles.push($(ele));
-    });
-    return newsEles;
-};
 
-const extractProductInfo = ($) => {
-    let title = $.find('.p-title >h3 >a').text();
-    let thumbnail = $.find('.p-main .p-main-image-crop .product-avatar >img').attr('src');
-    let content = $.find('.p-main .p-content .p-main-text').text();
-    let price = $.find('.p-main .p-bottom-crop .floatleft .product-price').text();
-    let area = $.find('.p-main .p-bottom-crop .floatleft .product-area').text();
-    let city_dist = $.find('.p-main .p-bottom-crop .floatleft .product-city-dist').text();
-    let date = $.find('.p-main .p-bottom-crop .floatright >span').text();
+var getURLElenments= ($)=>{
+    let urlEles = [];
+    _.each($('.lv0'),ele => {s
+        urlEles.push($(ele));
+    });
+    return urlEles;
+}
+var extractLink = ($)=>{
+    let title = $.find('>a').text();
+    let link = $.find('>a').attr('href');
     return {
-        title ,
-        thumbnail,
-        content,
-        price,
-        area,
-        city_dist,
-        date
+        title,
+        link,
     };
-};
-
-const saveText2File = async (filepath, text) => {
-    fs.writeFile(filepath, text, 'utf8', function (err) {
-        if (err) {
-            return console.log(err);
-        }
-        console.log("The file was saved!");
-    });
-};
-
-
-var pageLoad = [url];
-for(var i = 2;i<=10;i++){
-    pageLoad.push(`${url}/p${i}`)
 }
 
-//crawlWeb(pageLoad)
-crawl(url);
 
 
+crawlHomePage(uri);
