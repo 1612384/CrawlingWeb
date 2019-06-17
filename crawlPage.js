@@ -1,17 +1,18 @@
 const _ = require('lodash')
 const saveText2File = require('./saveFile');
-var driver = require('./buildDriver');
-var uri = "https://batdongsan.com.vn/ban-can-ho-chung-cu"
+
+var async = require('async')
+
 
 var data = {};
-var type = "Nha Dat Ban";
-var kind = "Ban Can Ho Chung Cu";
+var type = "Nhà đất bán"
+var kind = "Bán căn hộ chung cư"
 
-var crawl = (uri)=>{
+data[type] = {}
+data[type][kind]={}
+
+var crawl = (driver,uri)=>{
     console.log(uri);
-    data[type] = {};
-    data[type][kind] = {};
-    console.log(data["Nha Dat Ban"]["Ban Can Ho Chung Cu"]);
     driver.get(uri)
         .then(() => driver.getPageSource())
         .then((source) => {
@@ -19,9 +20,6 @@ var crawl = (uri)=>{
             getNewsElements($).map(ele=>extractNewsInfo(ele))
             saveText2File(`./result/new_${Date.now()}.json`, JSON.stringify(data, null, "\t"));
             })
-        .then(() => {
-        driver.quit();
-    });
 }
 const getNewsElements= ($) => {
     let newsEles = [];
@@ -169,7 +167,4 @@ const extractNewsInfo = ($) => {
     data[type][kind][res[1]][res[0]][areaField][priceField].push(news);
 }
 
-
-crawl(uri);
-
-
+module.exports = crawl

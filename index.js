@@ -1,40 +1,44 @@
 const _ = require('lodash')
 const saveText2File = require('./saveFile');
-var driver = require('./buildDriver');
 
-let uri = "https://batdongsan.com.vn/";
+var async  = require('async');
+var crawlPage = require('./crawlPage');
 
-var crawlHomePage = (uri)=>{
-    console.log(uri)
-    driver.get(uri)
-        .then(() => driver.getPageSource())
-        .then((source) => {
-            const $ = require('cheerio').load(source);
-            let uri  = getURLElenments($).map(ele=>extractLink(ele))
-            saveText2File(`./result/new_${Date.now()}.json`, JSON.stringify(uri));
-            crawlPage(uri[0]);
-            })
-        .then(() => {
-        driver.quit();
-    });
-}
-
-var getURLElenments= ($)=>{
-    let urlEles = [];
-    _.each($('.lv0'),ele => {s
-        urlEles.push($(ele));
-    });
-    return urlEles;
-}
-var extractLink = ($)=>{
-    let title = $.find('>a').text();
-    let link = $.find('>a').attr('href');
-    return {
-        title,
-        link,
-    };
-}
+const {Builder, until} = require('selenium-webdriver');
 
 
+let driver = new Builder()
+    .forBrowser('firefox')
+    .usingServer(process.env.SELENIUM_REMOTE_URL || 'http://localhost:4444/wd/hub')
+    .build();
 
-crawlHomePage(uri);
+let uri = "https://batdongsan.com.vn";
+let url = []
+crawlPage(driver,"https://batdongsan.com.vn/ban-can-ho-chung-cu")
+// var crawlHomePage = (uri)=>{
+//     driver.get(uri)
+//         .then(() => driver.getPageSource())
+//         .then((source) => {
+//             const $ = require('cheerio').load(source);
+//             url  = getURLElenments($).map(ele=>extractLink(ele));
+//         })
+//         .then(() => driver.close())
+// }
+// const getURLElenments= ($) => {
+//     let urlEles = [];
+//     _.each($('.lv1'),ele => {
+//         urlEles.push($(ele));
+//     });
+//     return urlEles;
+// };
+// var extractLink = ($) => {
+//     let title = $.find('>a').text();
+//     let link = $.find('>a').attr('href');
+//     return {
+//         title,
+//         link,
+//     };
+// }
+
+//crawlHomePage(uri);
+
