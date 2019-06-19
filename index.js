@@ -12,33 +12,73 @@ let driver = new Builder()
     .usingServer(process.env.SELENIUM_REMOTE_URL || 'http://localhost:4444/wd/hub')
     .build();
 
-let uri = "https://batdongsan.com.vn";
-let url = []
-crawlPage(driver,"https://batdongsan.com.vn/ban-can-ho-chung-cu")
-// var crawlHomePage = (uri)=>{
-//     driver.get(uri)
-//         .then(() => driver.getPageSource())
-//         .then((source) => {
-//             const $ = require('cheerio').load(source);
-//             url  = getURLElenments($).map(ele=>extractLink(ele));
-//         })
-//         .then(() => driver.close())
-// }
-// const getURLElenments= ($) => {
-//     let urlEles = [];
-//     _.each($('.lv1'),ele => {
-//         urlEles.push($(ele));
-//     });
-//     return urlEles;
-// };
-// var extractLink = ($) => {
-//     let title = $.find('>a').text();
-//     let link = $.find('>a').attr('href');
-//     return {
-//         title,
-//         link,
-//     };
-// }
+var uri ="https://batdongsan.com.vn"
 
-//crawlHomePage(uri);
+
+var crawlType = async function(url){
+    data = {}
+    var result = await crawlPage(driver,until,url,undefined)
+    data = result.data;
+    for(var i =2 ;i<=5;i++){
+        url1 = url + "/p" + i
+        var result = await crawlPage(driver,until,url1,true)
+        data = result.data;
+        if(result.count == 0)
+            return data;
+    }
+    return data;
+}
+
+//crawl nha dat ban
+var crawl = async function(url){
+    var data = {};
+    var type = "Nhà đất bán"
+    data[type]={};
+    var url2 = _.slice(url, 0, 9)
+    for(var i =0 ;i<9;i++){
+        ele = url2[i];
+        data[type][ele.title] = {}
+        data[type][ele.title] = await crawlType(uri+ele.link)
+    }
+    var type = "Nhà đất cho thuê"
+    data[type]={};
+    url2 = _.slice(url, 9, 17)
+    for(var i =0 ;i<8;i++){
+        ele = url2[i];
+        data[type][ele.title] = {}
+        data[type][ele.title] = await crawlType(uri+ele.link)
+    }
+    saveText2File(`./result/new_${Date.now()}.json`, JSON.stringify(data, null, "\t"));
+
+    driver.quit();
+}
+
+
+
+
+var crawlHomePage = async (uri)=>{
+    console.log(uri);
+    await driver.get(uri)
+    var source = await driver.getPageSource()
+    const $ = require('cheerio').load(source);
+    url  = getURLElenments($).map(ele=>extractLink(ele));
+    crawl(url);
+}
+const getURLElenments= ($) => {
+    let urlEles = [];
+    _.each($('.lv1'),ele => {
+        urlEles.push($(ele));
+    });
+    return urlEles;
+};
+var extractLink = ($) => {
+    let title = $.find('>a').text();
+    let link = $.find('>a').attr('href');
+    return {
+        title,
+        link,
+    };
+}
+
+crawlHomePage(uri);
 
