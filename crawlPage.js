@@ -23,7 +23,7 @@ var crawl = async (driver,until,uri,type)=>{
 }
 const getNewsElements= ($) => {
     let newsEles = [];
-    _.each($('.vip0'),ele => {
+    _.each($('[uid]'),ele => {
         newsEles.push($(ele));
     });
     return newsEles;

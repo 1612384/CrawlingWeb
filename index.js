@@ -30,7 +30,7 @@ var crawlType = async function(url){
 }
 
 //crawl nha dat ban
-var crawl = async function(url){
+var crawl = async function(url,url1){
     var data = {};
     var type = "Nhà đất bán"
     data[type]={};
@@ -43,6 +43,22 @@ var crawl = async function(url){
     var type = "Nhà đất cho thuê"
     data[type]={};
     url2 = _.slice(url, 9, 17)
+    for(var i =0 ;i<8;i++){
+        ele = url2[i];
+        data[type][ele.title] = {}
+        data[type][ele.title] = await crawlType(uri+ele.link)
+    }
+    var type = "Nhà đất cần mua"
+    data[type]={};
+    var url2 = _.slice(url1, 0, 9)
+    for(var i =0 ;i<9;i++){
+        ele = url2[i];
+        data[type][ele.title] = {}
+        data[type][ele.title] = await crawlType(uri+ele.link)
+    }
+    var type = "Nhà đất cần thuê"
+    data[type]={};
+    url2 = _.slice(url1, 9, 17)
     for(var i =0 ;i<8;i++){
         ele = url2[i];
         data[type][ele.title] = {}
@@ -62,11 +78,19 @@ var crawlHomePage = async (uri)=>{
     var source = await driver.getPageSource()
     const $ = require('cheerio').load(source);
     url  = getURLElenments($).map(ele=>extractLink(ele));
-    crawl(url);
+    url2  = getURLElenments2($).map(ele=>extractLink(ele));
+    crawl(url,url2);
 }
 const getURLElenments= ($) => {
     let urlEles = [];
     _.each($('.lv1'),ele => {
+        urlEles.push($(ele));
+    });
+    return urlEles;
+};
+const getURLElenments2= ($) => {
+    let urlEles = [];
+    _.each($('.lv2'),ele => {
         urlEles.push($(ele));
     });
     return urlEles;
