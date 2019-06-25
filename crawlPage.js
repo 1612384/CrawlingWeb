@@ -13,7 +13,6 @@ var crawl = async (driver,until,uri,type)=>{
     }
     console.log(uri);
     await driver.get(uri)
-    await driver.wait(until.elementIsVisible, 1000)
     var source = await driver.getPageSource()
     const $ = require('cheerio').load(source);
     getNewsElements($).map(ele=>extractNewsInfo(ele))
@@ -153,18 +152,23 @@ const extractNewsInfo = ($) => {
     }
 
     if(!data[res[1]][res[0]][areaField][priceField]){
-        data[res[1]][res[0]][areaField][priceField]  = [];
+        data[res[1]][res[0]][areaField][priceField]  = {};
     }
 
+    let date = $.find('.p-main .p-bottom-crop .floatright >span').text().replace(new RegExp('\n', 'g'),'');
+
+    if(!data[res[1]][res[0]][areaField][priceField][date]){
+        data[res[1]][res[0]][areaField][priceField][date]  = [];
+    }
     
     var news = {
         title: $.find('.p-title >h3 >a').text().replace(new RegExp('\n', 'g'),''),
+        link: $.find('.p-title >h3 >a').attr('href').replace(new RegExp('\n', 'g'),''),
         thumbnail:$.find('.p-main .p-main-image-crop .product-avatar >img').attr('src'),
         content: $.find('.p-main .p-content .p-main-text').text(),
-        date: $.find('.p-main .p-bottom-crop .floatright >span').text(),
     }
     
-    data[res[1]][res[0]][areaField][priceField].push(news);
+    data[res[1]][res[0]][areaField][priceField][date].push(news);
     ++count;
 }
 

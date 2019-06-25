@@ -3,8 +3,12 @@ const saveText2File = require('./saveFile');
 
 var async  = require('async');
 var crawlPage = require('./crawlPage');
+var crawlPage2 = require('./crawlPage2');
 
 const {Builder, until} = require('selenium-webdriver');
+
+var t0;
+var t1;
 
 
 let driver = new Builder()
@@ -15,13 +19,13 @@ let driver = new Builder()
 var uri ="https://batdongsan.com.vn"
 
 
-var crawlType = async function(url){
+var crawlType = async function(url,type){
     data = {}
-    var result = await crawlPage(driver,until,url,undefined)
+    var result = type==1 ? await crawlPage(driver,until,url,undefined):await crawlPage2(driver,until,url,undefined)
     data = result.data;
     for(var i =2 ;i<=5;i++){
         url1 = url + "/p" + i
-        var result = await crawlPage(driver,until,url1,true)
+        var result = type==1 ? await crawlPage(driver,until,url1,true): await crawlPage2(driver,until,url1,true)
         data = result.data;
         if(result.count == 0)
             return data;
@@ -38,7 +42,7 @@ var crawl = async function(url,url1){
     for(var i =0 ;i<9;i++){
         ele = url2[i];
         data[type][ele.title] = {}
-        data[type][ele.title] = await crawlType(uri+ele.link)
+        data[type][ele.title] = await crawlType(uri+ele.link,1)
     }
     var type = "Nhà đất cho thuê"
     data[type]={};
@@ -46,7 +50,7 @@ var crawl = async function(url,url1){
     for(var i =0 ;i<8;i++){
         ele = url2[i];
         data[type][ele.title] = {}
-        data[type][ele.title] = await crawlType(uri+ele.link)
+        data[type][ele.title] = await crawlType(uri+ele.link,1)
     }
     var type = "Nhà đất cần mua"
     data[type]={};
@@ -54,7 +58,7 @@ var crawl = async function(url,url1){
     for(var i =0 ;i<9;i++){
         ele = url2[i];
         data[type][ele.title] = {}
-        data[type][ele.title] = await crawlType(uri+ele.link)
+        data[type][ele.title] = await crawlType(uri+ele.link,2)
     }
     var type = "Nhà đất cần thuê"
     data[type]={};
@@ -62,17 +66,20 @@ var crawl = async function(url,url1){
     for(var i =0 ;i<8;i++){
         ele = url2[i];
         data[type][ele.title] = {}
-        data[type][ele.title] = await crawlType(uri+ele.link)
+        data[type][ele.title] = await crawlType(uri+ele.link,2)
     }
     saveText2File(`./result/new_${Date.now()}.json`, JSON.stringify(data, null, "\t"));
 
     driver.quit();
+    t1 = new Date().getTime();
+    console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
 }
 
 
 
 
 var crawlHomePage = async (uri)=>{
+    t0 = new Date().getTime();
     console.log(uri);
     await driver.get(uri)
     var source = await driver.getPageSource()
