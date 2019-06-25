@@ -1,6 +1,6 @@
 Project Crawling Web
 
-  URL: https://batdongsan.com.vn/nha-dat-ban (page 1)
+  URL: https://batdongsan.com.vn/
 
 How to run:
 
