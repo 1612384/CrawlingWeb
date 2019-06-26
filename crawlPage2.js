@@ -1,24 +1,21 @@
 const _ = require('lodash')
-const saveText2File = require('./saveFile');
-
-var async = require('async')
-
+var afterLoad = require('after-load');
 
 var data = {}
-var count
-var crawl = async (driver,until,uri,type)=>{
+
+exports.crawl = (title,uri) =>{
     count = 0;
-    if(!type){
-        data = {}
-    }
     console.log(uri);
-    await driver.get(uri)
-    var source = await driver.getPageSource()
-    const $ = require('cheerio').load(source);
-    getNewsElements($).map(ele=>extractNewsInfo(ele))
-    console.log(count);
-    return {data,count};
-    
+    var html = afterLoad(uri)
+    const $ = require('cheerio').load(html);
+    getNewsElements($).map(ele=>extractNewsInfo(ele,title))
+    return data
+}
+exports.resetData = ()=>{
+    data={};
+}
+exports.setKind = (title)=>{
+    data[title] = {}
 }
 const getNewsElements= ($) => {
     let newsEles = [];
@@ -28,38 +25,38 @@ const getNewsElements= ($) => {
     return newsEles;
 };
 
-const extractNewsInfo = ($) => {
+const extractNewsInfo = ($,title) => {
     let city = $.find('.p-main .p-content .floatleft .inline-blk .product-city-dist').text().replace(new RegExp('\n', 'g'),'');
     let dist = $.find('.p-main .p-content .floatleft .product-city-dist').first().text().replace(new RegExp('\n', 'g'),'');
     var res = [];
     res.push(dist);
     res.push(city);
-    if(!data[res[1]])
+    if(!data[title][res[1]])
     {
-        data[res[1]] = {};
+        data[title][res[1]] = {};
     }
-    if(!data[res[1]][res[0]])
+    if(!data[title][res[1]][res[0]])
     {
-        data[res[1]][res[0]]  = {};
+        data[title][res[1]][res[0]]  = {};
     }
 
     let areaField = $.find('.p-main .p-content .floatleft .product-area').text().replace(new RegExp('\n', 'g'),'');
 
-    if(!data[res[1]][res[0]][areaField])
+    if(!data[title][res[1]][res[0]][areaField])
     {
-        data[res[1]][res[0]][areaField]  = {};
+        data[title][res[1]][res[0]][areaField]  = {};
     }
 
     let priceField = $.find('.p-main .p-content .floatleft .product-price').text().replace(new RegExp('\n', 'g'),'');
    
-    if(!data[res[1]][res[0]][areaField][priceField]){
-        data[res[1]][res[0]][areaField][priceField]  = {};
+    if(!data[title][res[1]][res[0]][areaField][priceField]){
+        data[title][res[1]][res[0]][areaField][priceField]  = {};
     }
 
     let date = $.find('.p-main .p-content .floatright').text().replace(new RegExp('\n', 'g'),'');
 
-    if(!data[res[1]][res[0]][areaField][priceField][date]){
-        data[res[1]][res[0]][areaField][priceField][date]  = [];
+    if(!data[title][res[1]][res[0]][areaField][priceField][date]){
+        data[title][res[1]][res[0]][areaField][priceField][date]  = [];
     }
 
     var news = {
@@ -69,8 +66,6 @@ const extractNewsInfo = ($) => {
         content: $.find('.p-main .p-content .p-main-tex').text().replace(new RegExp('\n', 'g'),''),
     }
     
-    data[res[1]][res[0]][areaField][priceField][date].push(news);
+    data[title][res[1]][res[0]][areaField][priceField][date].push(news);
     ++count;
 }
-
-module.exports = crawl

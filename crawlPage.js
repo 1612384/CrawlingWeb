@@ -1,24 +1,21 @@
 const _ = require('lodash')
-const saveText2File = require('./saveFile');
-
-var async = require('async')
-
+var afterLoad = require('after-load');
 
 var data = {}
-var count
-var crawl = async (driver,until,uri,type)=>{
+
+exports.crawl = (title,uri) =>{
     count = 0;
-    if(!type){
-        data = {}
-    }
     console.log(uri);
-    await driver.get(uri)
-    var source = await driver.getPageSource()
-    const $ = require('cheerio').load(source);
-    getNewsElements($).map(ele=>extractNewsInfo(ele))
-    console.log(count);
-    return {data,count};
-    
+    var html = afterLoad(uri)
+    const $ = require('cheerio').load(html);
+    getNewsElements($).map(ele=>extractNewsInfo(ele,title))
+    return data
+}
+exports.resetData = ()=>{
+    data={};
+}
+exports.setKind = (title)=>{
+    data[title] = {}
 }
 const getNewsElements= ($) => {
     let newsEles = [];
@@ -28,16 +25,16 @@ const getNewsElements= ($) => {
     return newsEles;
 };
 
-const extractNewsInfo = ($) => {
+const extractNewsInfo = ($,title) => {
     let city_dist = $.find('.p-main .p-bottom-crop .floatleft .product-city-dist').text().replace(new RegExp('\n', 'g'),'');
     var res = city_dist.split(",");
-    if(!data[res[1]])
+    if(!data[title][res[1]])
     {
-        data[res[1]] = {};
+        data[title][res[1]] = {};
     }
-    if(!data[res[1]][res[0]])
+    if(!data[title][res[1]][res[0]])
     {
-        data[res[1]][res[0]]  = {};
+        data[title][res[1]][res[0]]  = {};
     }
 
     let area = $.find('.p-main .p-bottom-crop .floatleft .product-area').text();
@@ -86,9 +83,9 @@ const extractNewsInfo = ($) => {
             areaField = "<=30 m2";
         }
     }
-    if(!data[res[1]][res[0]][areaField])
+    if(!data[title][res[1]][res[0]][areaField])
     {
-        data[res[1]][res[0]][areaField]  = {};
+        data[title][res[1]][res[0]][areaField]  = {};
     }
 
     let price = $.find('.p-main .p-bottom-crop .floatleft .product-price').text();
@@ -151,14 +148,16 @@ const extractNewsInfo = ($) => {
         }
     }
 
-    if(!data[res[1]][res[0]][areaField][priceField]){
-        data[res[1]][res[0]][areaField][priceField]  = {};
+    if(!data[title][res[1]][res[0]][areaField][priceField]){
+        data[title][res[1]][res[0]][areaField][priceField]  = {};
     }
 
     let date = $.find('.p-main .p-bottom-crop .floatright >span').text().replace(new RegExp('\n', 'g'),'');
-
-    if(!data[res[1]][res[0]][areaField][priceField][date]){
-        data[res[1]][res[0]][areaField][priceField][date]  = [];
+    if($.find('.p-main .p-bottom-crop .floatright >span >strong').first().text() != ""){
+        date = $.find('.p-main .p-bottom-crop .floatright >span:nth-child(3)').text().replace(new RegExp('\n', 'g'),'');
+    }
+    if(!data[title][res[1]][res[0]][areaField][priceField][date]){
+        data[title][res[1]][res[0]][areaField][priceField][date]  = [];
     }
     
     var news = {
@@ -166,10 +165,12 @@ const extractNewsInfo = ($) => {
         link: $.find('.p-title >h3 >a').attr('href').replace(new RegExp('\n', 'g'),''),
         thumbnail:$.find('.p-main .p-main-image-crop .product-avatar >img').attr('src'),
         content: $.find('.p-main .p-content .p-main-text').text(),
+        contact: $.find('.p-main .p-bottom-crop .floatright >span >strong').first().text(),
+        mobile: $.find('.p-main .p-bottom-crop .floatright >span .mobile').text()
     }
     
-    data[res[1]][res[0]][areaField][priceField][date].push(news);
+    data[title][res[1]][res[0]][areaField][priceField][date].push(news);
     ++count;
 }
 
-module.exports = crawl
+//module.exports = crawl

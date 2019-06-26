@@ -18,13 +18,10 @@
   },
   "homepage": "https://github.com/1612384/CrawlingWeb#readme",
   "dependencies": {
+    "after-load": "^1.0.4",
     "async": "^3.0.1",
     "cheerio": "^1.0.0-rc.3",
     "fs": "0.0.1-security",
-    "lodash": "^4.17.11",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4",
-    "selenium-webdriver": "^4.0.0-alpha.1",
-    "xmlhttprequest": "^1.8.0"
+    "lodash": "^4.17.11"
   }
 }
