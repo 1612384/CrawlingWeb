@@ -5,7 +5,7 @@ var async  = require('async');
 var crawlPage = require('./crawlPage');
 var crawlPage2 = require('./crawlPage2');
 var afterLoad = require('after-load');
-
+var fetchUrl = require("fetch").fetchUrl;
 
 var t0;
 var t1;
@@ -71,7 +71,7 @@ var crawl = async function(url,url1){
                 callback(err,type,results[7]);
             });
         }
-    },2, function(err, results) {
+    },4, function(err, results) {
         console.log(err);
         data[results.one[0]]={};
         data[results.one[0]]=results.one[1];
@@ -93,14 +93,12 @@ var crawl = async function(url,url1){
 var crawlHomePage = async (uri)=>{
     t0 = new Date().getTime();
     console.log(uri);
-    afterLoad('https://batdongsan.com.vn/',function(html){
-        const $ = require('cheerio').load(html);
+    fetchUrl("https://batdongsan.com.vn/", function(error, meta, body){
+        const $ = require('cheerio').load(body);
         url  = getURLElenments($).map(ele=>extractLink(ele));
         url2  = getURLElenments2($).map(ele=>extractLink(ele));
         crawl(url,url2);
-    })
-    
-   
+    });
 }
 const getURLElenments= ($) => {
     let urlEles = [];
@@ -126,3 +124,5 @@ var extractLink = ($) => {
 }
 
 crawlHomePage(uri);
+
+
