@@ -93,12 +93,12 @@ var crawl = async function(url,url1){
 var crawlHomePage = async (uri)=>{
     t0 = new Date().getTime();
     console.log(uri);
-    fetchUrl("https://batdongsan.com.vn/", function(error, meta, body){
-        const $ = require('cheerio').load(body);
+    var html = afterLoad(uri)
+        const $ = require('cheerio').load(html);
         url  = getURLElenments($).map(ele=>extractLink(ele));
         url2  = getURLElenments2($).map(ele=>extractLink(ele));
         crawl(url,url2);
-    });
+   
 }
 const getURLElenments= ($) => {
     let urlEles = [];

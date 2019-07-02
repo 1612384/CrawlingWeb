@@ -172,5 +172,3 @@ const extractNewsInfo = ($,title) => {
     data[title][res[1]][res[0]][areaField][priceField][date].push(news);
     ++count;
 }
-
-//module.exports = crawl
