@@ -29,7 +29,7 @@
                                             +"<p>Quận, huyện: #dist#, #city#</p>"
                                         +"</div>"
                                         +"<div class='col-md-6'>"
-                                            +"<p class='float-right'>#date#</p>"
+                                            +"<p class='float-right'>#fdate#</p>"
                                         +"</div>"
                                     +"</div>"
                                 +"</div>"
@@ -40,11 +40,18 @@
                         pager:"pagerA"
                         },
                         {
-                        view:"pager",
-                        id:"pagerA",
-                        size:20,
-                        group:8
-                        }   
+                            cols:[
+                                { },
+                                { },
+                                { 
+                                    view:"pager",
+                                    id:"pagerA",
+                                    size:20,
+                                    group:8
+                                },
+                                { }
+                            ]
+                        },  
                     ]
                 });
         </script>

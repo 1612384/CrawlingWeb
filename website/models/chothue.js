@@ -14,6 +14,7 @@ const ChoThueSchema = new Schema({
     area: String,
     price: String,
     date: Date,
+    fdate: String,
     type: String,
 })
 

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const BanSchema = new Schema({
+const ChoThueSchema = new Schema({
     title: String,
     link: String,
     thumbnail: String,
@@ -14,8 +14,7 @@ const BanSchema = new Schema({
     area: String,
     price: String,
     date: Date,
-    fdate: String,
     type: String,
 })
 
-module.exports = mongoose.model('Ban', BanSchema);
+module.exports = mongoose.model('ChoThue', ChoThueSchema);
